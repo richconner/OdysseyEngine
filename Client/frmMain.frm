@@ -8,6 +8,7 @@ Begin VB.Form frmMain
    ClientLeft      =   0
    ClientTop       =   15
    ClientWidth     =   12000
+   Icon            =   "frmMain.frx":0000
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
    ScaleHeight     =   600
@@ -551,7 +552,7 @@ Begin VB.Form frmMain
       ScaleHeight     =   6075
       ScaleWidth      =   3705
       TabIndex        =   119
-      Top             =   120
+      Top             =   0
       Visible         =   0   'False
       Width           =   3735
       Begin VB.PictureBox picTiles 

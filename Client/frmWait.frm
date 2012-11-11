@@ -8,6 +8,7 @@ Begin VB.Form frmWait
    ClientTop       =   0
    ClientWidth     =   4500
    ControlBox      =   0   'False
+   Icon            =   "frmWait.frx":0000
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False

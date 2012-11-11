@@ -9,6 +9,7 @@ Begin VB.Form frmLogin
    ClientTop       =   -15
    ClientWidth     =   4500
    ControlBox      =   0   'False
+   Icon            =   "frmLogin.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
@@ -42,7 +43,7 @@ Begin VB.Form frmLogin
    Begin VB.Label lblPasswordWarning 
       BackColor       =   &H0044342E&
       BackStyle       =   0  'Transparent
-      Caption         =   $"frmLogin.frx":0000
+      Caption         =   $"frmLogin.frx":0E42
       BeginProperty Font 
          Name            =   "Times New Roman"
          Size            =   8.25

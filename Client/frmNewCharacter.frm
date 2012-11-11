@@ -166,7 +166,7 @@ Begin VB.Form frmNewCharacter
    Begin VB.Label Label13 
       Alignment       =   2  'Center
       BackColor       =   &H0061514B&
-      Caption         =   $"frmNewCharacter.frx":1CFA
+      Caption         =   $"frmNewCharacter.frx":0E42
       BeginProperty Font 
          Name            =   "Times New Roman"
          Size            =   8.25

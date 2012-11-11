@@ -9,6 +9,7 @@ Begin VB.Form frmMenu
    ClientWidth     =   4485
    ClipControls    =   0   'False
    ControlBox      =   0   'False
+   Icon            =   "frmMenu.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False

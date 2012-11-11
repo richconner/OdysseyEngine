@@ -130,9 +130,9 @@ Begin VB.Form frmObject
    End
    Begin VB.ComboBox cmbType 
       Height          =   315
-      ItemData        =   "frmObject.frx":1CFA
+      ItemData        =   "frmObject.frx":0E42
       Left            =   1320
-      List            =   "frmObject.frx":1CFC
+      List            =   "frmObject.frx":0E44
       Style           =   2  'Dropdown List
       TabIndex        =   19
       Top             =   1560

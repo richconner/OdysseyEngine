@@ -6,6 +6,7 @@ Begin VB.Form frmEmail
    ClientLeft      =   45
    ClientTop       =   345
    ClientWidth     =   5550
+   Icon            =   "frmEmail.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
@@ -52,7 +53,7 @@ Begin VB.Form frmEmail
       Width           =   3015
    End
    Begin VB.Label Label1 
-      Caption         =   $"frmEmail.frx":0000
+      Caption         =   $"frmEmail.frx":0E42
       Height          =   1095
       Left            =   120
       TabIndex        =   6
