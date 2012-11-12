@@ -135,7 +135,7 @@ Sub ProcessString(PacketID As Long, St As String)
         If frmWait_Loaded = True Then Unload frmWait
         If frmLogin_Loaded = True Then Unload frmLogin
         If frmNewCharacter_Loaded = True Then Unload frmNewCharacter
-        CWalkStep = 0
+        CWalkStep = 0: CWalkStep2 = CWalkStep ^ 2 + 16
         If Len(St) >= 10 Then
             With Character
                 .name = vbNullString
@@ -276,6 +276,7 @@ Sub ProcessString(PacketID As Long, St As String)
                     End If
                     .D = Asc(Mid$(St, 4, 1))
                     .WalkStep = Asc(Mid$(St, 5, 1))
+                    .WalkStart = timeGetTime
                     .IsDead = False
                 End With
             End If
@@ -959,6 +960,7 @@ Sub ProcessString(PacketID As Long, St As String)
             A = Asc(Mid$(St, 1, 1))
             If A <= MaxMonsters Then
                 With Map.Monster(A)
+                    .WalkStart = timeGetTime
                     If CLng(.X) * 32 <> .XO Then
                         .X = Asc(Mid$(St, 2, 1))
                         .XO = .X * 32
@@ -1306,7 +1308,7 @@ Sub ProcessString(PacketID As Long, St As String)
             If Character.Access > 0 Then
                 Character.status = 3
             Else
-                CWalkStep = 4
+                CWalkStep = 16: CWalkStep2 = CWalkStep ^ 2 + 16
                 Character.status = 0
             End If
         End If

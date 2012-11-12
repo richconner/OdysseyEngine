@@ -8,7 +8,6 @@ Begin VB.Form frmMain
    ClientLeft      =   0
    ClientTop       =   15
    ClientWidth     =   12000
-   Icon            =   "frmMain.frx":0000
    KeyPreview      =   -1  'True
    LinkTopic       =   "Form1"
    ScaleHeight     =   600
@@ -552,7 +551,7 @@ Begin VB.Form frmMain
       ScaleHeight     =   6075
       ScaleWidth      =   3705
       TabIndex        =   119
-      Top             =   0
+      Top             =   120
       Visible         =   0   'False
       Width           =   3735
       Begin VB.PictureBox picTiles 
@@ -4687,7 +4686,7 @@ Private Sub lblEditMode_MouseUp(index As Integer, Button As Integer, Shift As In
             If A >= 6 Then RedrawMap = True
             If A = 7 Then
                 Select Case CurAtt
-                Case 2, 3, 7, 8, 9, 17, 19, 20, 21    'Warp, Key, Object, Touch Plate, Damage, Directional Wall, Light, Dampening Wall, Object Picture
+                Case 2, 3, 7, 8, 9, 17, 19, 20, 21, 23, 24, 25    'Warp, Key, Object, Touch Plate, Damage, Directional Wall, Light, Dampening Wall, Object Picture, half tile, speed tile, half player
                     CurAtt = 0
                 Case Else
                     lblCurTile = CurAtt
@@ -5238,7 +5237,7 @@ Private Sub picTiles_MouseDown(Button As Integer, Shift As Integer, X As Single,
                 NewAtt = Int(Y / 32) * 7 + Int(X / 32) + 1
                 If NewAtt <= MaxAtt Then
                     Select Case NewAtt
-                    Case 2, 3, 7, 8, 9, 17, 19, 20, 21    'Warp, Key, Object, Touch Plate, Damage, Directional Wall, Light, Dampening Wall, Object Picture
+                    Case 2, 3, 7, 8, 9, 17, 19, 20, 21, 23, 24, 25   'Warp, Key, Object, Touch Plate, Damage, Directional Wall, Light, Dampening Wall, Object Picture, half tile, speed tile, half player
                         frmMapAtt.Show 1
                     Case Else
                         CurAtt = NewAtt
@@ -5250,7 +5249,7 @@ Private Sub picTiles_MouseDown(Button As Integer, Shift As Integer, X As Single,
                 NewAtt = Int(Y / 32) * 7 + Int(X / 32) + 1
                 If NewAtt <= MaxAtt Then
                     Select Case NewAtt
-                    Case 2, 3, 7, 8, 9, 17, 19, 20, 21    'Warp, Key, Object, Touch Plate, Damage, Directional Wall, Light, Dampening Wall, Object Picture
+                    Case 2, 3, 7, 8, 9, 17, 19, 20, 21, 23, 24, 25 'Warp, Key, Object, Touch Plate, Damage, Directional Wall, Light, Dampening Wall, Object Picture, half tile, speed tile, half player
 
                     Case Else
                         CurAtt = NewAtt
@@ -5699,4 +5698,3 @@ Sub ShowBuyMenu(NPCIndex As Integer)
     frmMain.picBuy.Visible = True
     frmMain.picDrop.Visible = False
 End Sub
-

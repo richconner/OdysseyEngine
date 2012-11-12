@@ -51,6 +51,8 @@ Type ProjectileData
     Magic As Byte
     Damage As Byte
     Alternate As Boolean
+    StartTime As Long
+    Direction As Byte
 End Type
 
 Type PlayerData
@@ -74,6 +76,8 @@ Type PlayerData
     IsDead As Boolean
     HP As Byte
     MaxHP As Byte
+    WalkStart As Long
+    
 End Type
 
 Type MacroData
@@ -139,6 +143,7 @@ Type MapMonsterData
     A As Byte
     W As Byte
     HPBar As Boolean
+    WalkStart As Long
 End Type
 
 Type MapObjectData

@@ -539,7 +539,7 @@ Sub MoveToTile()
     Character.LastMove = Tick
     SendSocket Chr$(7) + Chr$(CX) + Chr$(CY) + Chr$(CDir) + Chr$(CWalkStep)
 
-    If CWalkStep = 4 Then
+    If keyShift = True Then
         If GetEnergy > 0 Then SetEnergy GetEnergy - 1
         DrawStats
     End If
@@ -1045,17 +1045,25 @@ Sub CheckKeys()
     End If
     If CX * 32 = CXO And CY * 32 = CYO Then
         If Character.Access = 0 Or keyAlt = True Then
-            If CWalkStep > 4 And Character.Access = 0 Then
+            If CWalkStep ^ 2 + 16 <> CWalkStep2 And Character.Access = 0 Then
                 SendSocket Chr$(68) + "Walk Hack"
                 Exit Sub
             End If
             If keyShift = True And GetEnergy > 0 Then
-                CWalkStep = 4
+                If Map.Tile(CX, CY).Att = 24 Then 'speed tile
+                    CWalkStep = Map.Tile(CX, CY).AttData(1): CWalkStep2 = CWalkStep ^ 2 + 16
+                Else
+                    CWalkStep = 16: CWalkStep2 = CWalkStep ^ 2 + 16
+                End If
             Else
-                CWalkStep = 2
+                If Map.Tile(CX, CY).Att = 24 Then 'speed tile
+                    CWalkStep = Map.Tile(CX, CY).AttData(0): CWalkStep2 = CWalkStep ^ 2 + 16
+                Else
+                    CWalkStep = 8: CWalkStep2 = CWalkStep ^ 2 + 16
+                End If
             End If
         Else
-            CWalkStep = 16
+            CWalkStep = 31: CWalkStep2 = CWalkStep ^ 2 + 16
         End If
         If keyUp = True Then
             If CDir = 0 Then
@@ -2018,8 +2026,9 @@ Sub CreateProjectile(Direction As Byte, StartX As Byte, StartY As Byte, TheType 
     For A = 1 To MaxProjectiles
         With Projectile(A)
             If .Sprite = 0 Then
+                .StartTime = timeGetTime
                 .TargetType = pttProject
-                .speed = 1
+                .speed = ProjectileSpeed
                 .SourceX = StartX
                 .SourceY = StartY
                 .X = StartX * 32
@@ -2027,6 +2036,7 @@ Sub CreateProjectile(Direction As Byte, StartX As Byte, StartY As Byte, TheType 
                 .Creator = Creator
                 .Damage = Damage
                 .Magic = Magic
+                .Direction = Direction
                 Exit For
             End If
         End With
@@ -2036,15 +2046,15 @@ Sub CreateProjectile(Direction As Byte, StartX As Byte, StartY As Byte, TheType 
         Select Case Direction
         Case 0    'Up
             .TargetX = StartX * 32
-            .TargetY = 0
+            .TargetY = -16
         Case 1    'Down
             .TargetX = StartX * 32
-            .TargetY = 11 * 32
+            .TargetY = 12 * 32 + 16
         Case 2    'Left
-            .TargetX = 0
+            .TargetX = -32
             .TargetY = StartY * 32
         Case 3    'Right
-            .TargetX = 11 * 32
+            .TargetX = 12 * 32 + 16
             .TargetY = StartY * 32
         End Select
 

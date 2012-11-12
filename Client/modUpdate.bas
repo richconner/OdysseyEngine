@@ -1,6 +1,7 @@
 Attribute VB_Name = "modUpdate"
 Option Explicit
-
+Dim TileSource As RECT
+    
 Sub UpdateGame()
     Dim A As Long, B As Long, C As Long, D As Long
     Dim TempStr As String, TempVar As Byte
@@ -12,18 +13,30 @@ Sub UpdateGame()
                     If .Sprite <= MaxSprite Then
                         'Move Player
                         If .XO < .X * 32 Then
-                            .XO = .XO + .WalkStep
-                            If Int(.XO / 16) * 16 = .XO Then .W = 1 - .W
+                            D = .XO \ 16
+                            .XO = (.X - 1) * 32 + ((timeGetTime - .WalkStart) / (3200 / .WalkStep)) * 32
+                            If (.XO >= .X * 32) Then .XO = .X * 32
+                            
+                            If .XO \ 16 <> D Then .W = 1 - .W
                         ElseIf .XO > .X * 32 Then
-                            .XO = .XO - .WalkStep
-                            If Int(.XO / 16) * 16 = .XO Then .W = 1 - .W
+                            D = .XO \ 16
+                            .XO = (.X + 1) * 32 - ((timeGetTime - .WalkStart) / (3200 / .WalkStep)) * 32
+                            If (.XO <= .X * 32) Then .XO = .X * 32
+                            
+                            If .XO \ 16 <> D Then .W = 1 - .W
                         End If
                         If .YO < .Y * 32 Then
-                            .YO = .YO + .WalkStep
-                            If Int(.YO / 16) * 16 = .YO Then .W = 1 - .W
+                            D = .YO \ 16
+                            .YO = (.Y - 1) * 32 + ((timeGetTime - .WalkStart) / (3200 / .WalkStep)) * 32
+                            If (.YO >= .Y * 32) Then .YO = .Y * 32
+                            
+                            If .YO \ 16 <> D Then .W = 1 - .W
                         ElseIf .YO > .Y * 32 Then
-                            .YO = .YO - .WalkStep
-                            If Int(.YO / 16) * 16 = .YO Then .W = 1 - .W
+                            D = .YO \ 16
+                            .YO = (.Y + 1) * 32 - ((timeGetTime - .WalkStart) / (3200 / .WalkStep)) * 32
+                            If (.YO <= .Y * 32) Then .YO = .Y * 32
+                            
+                            If .YO \ 16 <> D Then .W = 1 - .W
                         End If
                     End If
                 End If
@@ -90,34 +103,46 @@ Sub UpdateGame()
                 C = Monster(.Monster).Sprite
                 If C > 0 And C <= MaxSprite Then
                     If .XO < .X * 32 Then
+                        D = .XO \ 16
                         If ExamineBit(Monster(.Monster).flags, 2) = False Then 'Not runner
-                            .XO = .XO + 2
+                            .XO = (.X - 1) * 32 + ((timeGetTime - .WalkStart) / (TargetMoveTicks / MonsterWalkSpeed)) * 32
                         Else
-                            .XO = .XO + 4
+                            .XO = (.X - 1) * 32 + ((timeGetTime - .WalkStart) / (TargetMoveTicks / MonsterRunSpeed)) * 32
                         End If
-                        If Int(.XO / 16) * 16 = .XO Then .W = 1 - .W
+                        If (.XO >= .X * 32) Then .XO = .X * 32
+                        
+                        If D <> .XO \ 16 Then .W = 1 - .W
                     ElseIf .XO > .X * 32 Then
+                        D = .XO \ 16
                         If ExamineBit(Monster(.Monster).flags, 2) = False Then 'Not runner
-                            .XO = .XO - 2
+                            .XO = (.X + 1) * 32 - ((timeGetTime - .WalkStart) / (TargetMoveTicks / MonsterWalkSpeed)) * 32
                         Else
-                            .XO = .XO - 4
+                            .XO = (.X + 1) * 32 - ((timeGetTime - .WalkStart) / (TargetMoveTicks / MonsterRunSpeed)) * 32
                         End If
-                        If Int(.XO / 16) * 16 = .XO Then .W = 1 - .W
+                        If (.XO <= .X * 32) Then .XO = .X * 32
+                        
+                        If D <> .XO \ 16 Then .W = 1 - .W
                     End If
                     If .YO < .Y * 32 Then
+                        D = .YO \ 16
                         If ExamineBit(Monster(.Monster).flags, 2) = False Then 'Not runner
-                            .YO = .YO + 2
+                            .YO = (.Y - 1) * 32 + ((timeGetTime - .WalkStart) / (TargetMoveTicks / MonsterWalkSpeed)) * 32
                         Else
-                            .YO = .YO + 4
+                            .YO = (.Y - 1) * 32 + ((timeGetTime - .WalkStart) / (TargetMoveTicks / MonsterRunSpeed)) * 32
                         End If
-                        If Int(.YO / 16) * 16 = .YO Then .W = 1 - .W
+                        If (.YO >= .Y * 32) Then .YO = .Y * 32
+                        
+                        If D <> .YO \ 16 Then .W = 1 - .W
                     ElseIf .YO > .Y * 32 Then
+                        D = .YO \ 16
                         If ExamineBit(Monster(.Monster).flags, 2) = False Then 'Not runner
-                            .YO = .YO - 2
+                            .YO = (.Y + 1) * 32 - ((timeGetTime - .WalkStart) / (TargetMoveTicks / MonsterWalkSpeed)) * 32
                         Else
-                            .YO = .YO - 4
+                            .YO = (.Y + 1) * 32 - ((timeGetTime - .WalkStart) / (TargetMoveTicks / MonsterRunSpeed)) * 32
                         End If
-                        If Int(.YO / 16) * 16 = .YO Then .W = 1 - .W
+                        If (.YO <= .Y * 32) Then .YO = .Y * 32
+                        
+                        If D <> .YO \ 16 Then .W = 1 - .W
                     End If
                 End If
             End If
@@ -219,36 +244,37 @@ Sub UpdateGame()
                         .TimeStamp = Tick
                     End If
                 Case pttProject
-                    If Tick - .TimeStamp >= .speed Then
-                        If .X = .TargetX And .Y = .TargetY Then
-                            If .TotalFrames > 0 Then
-                                If .Frame < .TotalFrames Then
-                                    .Frame = .Frame + 1
-                                Else
-                                    If .EndSound > 0 Then PlayWav .EndSound
-                                    DestroyEffect A
-                                End If
+                    If (.X = .TargetX And .Y = .TargetY) Or (.X < -32 Or .Y < -16 Or .X > 12 * 32 + 16 Or .Y > 12 * 32 + 16) Then
+                        If .TotalFrames > 0 Then
+                            If .Frame < .TotalFrames Then
+                                .Frame = .Frame + 1
                             Else
                                 If .EndSound > 0 Then PlayWav .EndSound
                                 DestroyEffect A
                             End If
                         Else
-                            If .X < .TargetX Then .X = .X + 8
-                            If .X > .TargetX Then .X = .X - 8
-                            If .Y < .TargetY Then .Y = .Y + 8
-                            If .Y > .TargetY Then .Y = .Y - 8
-                            If .Alternate = True Then
-                                Select Case .Type
-                                Case 2
-                                    .offset = 1 - .offset
-                                    .Frame = .offset
-                                Case 4
-                                    If .offset = 3 Then .offset = 0 Else .offset = .offset + 1
-                                    .Frame = .offset
-                                End Select
-                            End If
-                            C = (.X / 32)
-                            D = (.Y / 32)
+                            If .EndSound > 0 Then PlayWav .EndSound
+                            DestroyEffect A
+                        End If
+                    Else
+                        If .Direction = 3 Then .X = (.SourceX * 32) + ((timeGetTime - .StartTime) / (TargetMoveTicks / .speed)) * 32
+                        If .Direction = 2 Then .X = (.SourceX * 32) - ((timeGetTime - .StartTime) / (TargetMoveTicks / .speed)) * 32
+                        If .Direction = 1 Then .Y = (.SourceY * 32) + ((timeGetTime - .StartTime) / (TargetMoveTicks / .speed)) * 32
+                        If .Direction = 0 Then .Y = (.SourceY * 32) - ((timeGetTime - .StartTime) / (TargetMoveTicks / .speed)) * 32
+                        If .Alternate = True Then
+                            Select Case .Type
+                            Case 2
+                                .offset = 1 - .offset
+                                .Frame = .offset
+                            Case 4
+                                If .offset = 3 Then .offset = 0 Else .offset = .offset + 1
+                                .Frame = .offset
+                            End Select
+                        End If
+                        C = (.X / 32)
+                        D = (.Y / 32)
+                        
+                        If (C >= 0 And C <= 11 And D >= 0 And D <= 11) Then
                             'Projectile Collision
                             Select Case Map.Tile(C, D).Att
                             Case 1, 2, 3, 14, 16
@@ -270,84 +296,79 @@ Sub UpdateGame()
                                 .TargetX = .X
                                 .TargetY = .Y
                             End Select
-                            Dim Direction As Byte
-                            If .X < .TargetX Then Direction = 3
-                            If .X > .TargetX Then Direction = 2
-                            If .Y < .TargetY Then Direction = 1
-                            If .Y > .TargetY Then Direction = 0
-                            If NoDirectionalWalls(CByte(.X / 32), CByte(.Y / 32), Direction) = False Then
+                            
+                            If NoDirectionalWalls(CByte(.X / 32), CByte(.Y / 32), .Direction) = False Then
                                 .TargetX = .X
                                 .TargetY = .Y
                             End If
-
-                            For B = 0 To MaxMonsters
-                                If Map.Monster(B).X = C Then
-                                    If Map.Monster(B).Y = D Then
-                                        If Map.Monster(B).Monster > 0 Then
-                                            If .Creator = Character.index Then
-                                                If .Damage > 0 Then
-                                                    TempVar = (CMap + CX + CY) Mod 250
-                                                    If .Magic > 0 Then
-                                                        'Magic Projectile
-                                                        TempStr = Chr$(TempVar) + Chr$(1) + Chr$(B) + Chr$(.Damage)
-                                                        SendSocket Chr$(79) + Chr$(CheckSum(TempStr) Mod 256) + TempStr
-                                                    Else
-                                                        'Normal Projectile
-                                                        TempStr = Chr$(TempVar) + Chr$(2) + Chr$(B) + Chr$(.Damage)
-                                                        SendSocket Chr$(79) + Chr$(CheckSum(TempStr) Mod 256) + TempStr
-                                                    End If
+                        End If
+                        For B = 0 To MaxMonsters
+                            If Map.Monster(B).X = C Then
+                                If Map.Monster(B).Y = D Then
+                                    If Map.Monster(B).Monster > 0 Then
+                                        If .Creator = Character.index Then
+                                            If .Damage > 0 Then
+                                                TempVar = (CMap + CX + CY) Mod 250
+                                                If .Magic > 0 Then
+                                                    'Magic Projectile
+                                                    TempStr = Chr$(TempVar) + Chr$(1) + Chr$(B) + Chr$(.Damage)
+                                                    SendSocket Chr$(79) + Chr$(CheckSum(TempStr) Mod 256) + TempStr
                                                 Else
-                                                    SendSocket Chr$(73) & Chr$(B)
+                                                    'Normal Projectile
+                                                    TempStr = Chr$(TempVar) + Chr$(2) + Chr$(B) + Chr$(.Damage)
+                                                    SendSocket Chr$(79) + Chr$(CheckSum(TempStr) Mod 256) + TempStr
                                                 End If
+                                            Else
+                                                SendSocket Chr$(73) & Chr$(B)
                                             End If
-
-                                            .TargetX = .X
-                                            .TargetY = .Y
                                         End If
+
+                                        .TargetX = .X
+                                        .TargetY = .Y
                                     End If
                                 End If
-                            Next B
-                            For B = 1 To MaxUsers
-                                If Player(B).X = C Then
-                                    If Player(B).Y = D Then
-                                        If Player(B).Map = CMap Then
-                                            If Not B = .Creator Then
-                                                If Player(B).IsDead = False Then
-                                                    Dim Collide As Boolean
-                                                    If Character.Guild > 0 Then
-                                                        If Player(B).Guild = 0 Then
-                                                            If ExamineBit(Map.flags, 0) = False And ExamineBit(Map.flags, 6) = False Then
+                            End If
+                        Next B
+                        For B = 1 To MaxUsers
+                            If Player(B).X = C Then
+                                If Player(B).Y = D Then
+                                    If Player(B).Map = CMap Then
+                                        If Not B = .Creator Then
+                                            If Player(B).IsDead = False Then
+                                                Dim Collide As Boolean
+                                                If Character.Guild > 0 Then
+                                                    If Player(B).Guild = 0 Then
+                                                        If ExamineBit(Map.flags, 0) = False And ExamineBit(Map.flags, 6) = False Then
 
-                                                            Else
-                                                                Collide = True
-                                                            End If
                                                         Else
                                                             Collide = True
                                                         End If
                                                     Else
                                                         Collide = True
                                                     End If
-                                                    If Collide = True Then
-                                                        .TargetX = .X
-                                                        .TargetY = .Y
-                                                        If .Creator = Character.index Then
-                                                            If .Damage > 0 Then
-                                                                TempVar = CMap Mod 250
+                                                Else
+                                                    Collide = True
+                                                End If
+                                                If Collide = True Then
+                                                    .TargetX = .X
+                                                    .TargetY = .Y
+                                                    If .Creator = Character.index Then
+                                                        If .Damage > 0 Then
+                                                            TempVar = CMap Mod 250
 
-                                                                If .Magic > 0 Then
-                                                                    'Magic Projectile
-                                                                    TempStr = Chr$(TempVar) + Chr$(3) + Chr$(B) + Chr$(.Damage)
-                                                                    SendSocket Chr$(79) + Chr$(CheckSum(TempStr) Mod 256) + TempStr
-                                                                    Exit For
-                                                                Else
-                                                                    'Normal Projectile
-                                                                    TempStr = Chr$(TempVar) + Chr$(4) + Chr$(B) + Chr$(.Damage)
-                                                                    SendSocket Chr$(79) + Chr$(CheckSum(TempStr) Mod 256) + TempStr
-                                                                    Exit For
-                                                                End If
+                                                            If .Magic > 0 Then
+                                                                'Magic Projectile
+                                                                TempStr = Chr$(TempVar) + Chr$(3) + Chr$(B) + Chr$(.Damage)
+                                                                SendSocket Chr$(79) + Chr$(CheckSum(TempStr) Mod 256) + TempStr
+                                                                Exit For
                                                             Else
-                                                                SendSocket Chr$(74) & Chr$(B)
+                                                                'Normal Projectile
+                                                                TempStr = Chr$(TempVar) + Chr$(4) + Chr$(B) + Chr$(.Damage)
+                                                                SendSocket Chr$(79) + Chr$(CheckSum(TempStr) Mod 256) + TempStr
+                                                                Exit For
                                                             End If
+                                                        Else
+                                                            SendSocket Chr$(74) & Chr$(B)
                                                         End If
                                                     End If
                                                 End If
@@ -355,18 +376,18 @@ Sub UpdateGame()
                                         End If
                                     End If
                                 End If
-                            Next B
-                            If CX = C Then
-                                If CY = D Then
-                                    If Not .Creator = Character.index Then
-                                        .TargetX = .X
-                                        .TargetY = .Y
-                                    End If
+                            End If
+                        Next B
+                        If CX = C Then
+                            If CY = D Then
+                                If Not .Creator = Character.index Then
+                                    .TargetX = .X
+                                    .TargetY = .Y
                                 End If
                             End If
                         End If
-                        .TimeStamp = Tick
                     End If
+                    .TimeStamp = Tick
                 End Select
             End If
         End With
@@ -415,7 +436,11 @@ Sub DrawNextFrame()
                         If Player(A).IsDead Then
                             Draw .XO, .YO, 32, 32, DDSTiles, (623 Mod 7) * 32, (623 / 7) * 32, True
                         Else
-                            Draw .XO, .YO - 16, 32, 32, DDSSprites, B * 32, (.Sprite - 1) * 32, True
+                            If (Map.Tile(.X, .Y).Att = 25 And ExamineBit(Map.Tile(.X, .Y).AttData(1), 0) = True) Then 'sprite half tile
+                                Draw .XO, .YO - 16, 32, 32 - Map.Tile(.X, .Y).AttData(0), DDSSprites, B * 32, (.Sprite - 1) * 32, True
+                            Else
+                                Draw .XO, .YO - 16, 32, 32, DDSSprites, B * 32, (.Sprite - 1) * 32, True
+                            End If
                             If Player(A).HP > 0 Then
                                 If Not Player(A).HP = Player(A).MaxHP Then
                                     Draw .XO + 3, .YO - 16, 2, 26, DDSHPBar, 0, 4, False
@@ -440,7 +465,11 @@ Sub DrawNextFrame()
     If Character.IsDead = True Then
         Draw CXO, CYO, 32, 32, DDSTiles, (623 Mod 7) * 32, (623 / 7) * 32, True
     Else
-        Draw CXO, CYO - 16, 32, 32, DDSSprites, B * 32, (Character.Sprite - 1) * 32, True
+        If (Map.Tile(CX, CY).Att = 25) And ExamineBit(Map.Tile(CX, CY).AttData(1), 0) = True Then 'sprite half tile
+            Draw CXO, CYO - 16, 32, 32 - Map.Tile(CX, CY).AttData(0), DDSSprites, B * 32, (Character.Sprite - 1) * 32, True
+        Else
+            Draw CXO, CYO - 16, 32, 32, DDSSprites, B * 32, (Character.Sprite - 1) * 32, True
+        End If
     End If
 
     For A = 0 To MaxMonsters
@@ -455,8 +484,11 @@ Sub DrawNextFrame()
                     Else
                         B = .D * 3 + .W
                     End If
-                    Draw .XO, .YO - 16, 32, 32, DDSSprites, B * 32, (C - 1) * 32, True
-                    
+                    If (Map.Tile(.X, .Y).Att = 25 And ExamineBit(Map.Tile(.X, .Y).AttData(1), 1) = True) Then 'sprite half tile
+                        Draw .XO, .YO - 16, 32, 32 - Map.Tile(.X, .Y).AttData(0), DDSSprites, B * 32, (C - 1) * 32, True
+                    Else
+                        Draw .XO, .YO - 16, 32, 32, DDSSprites, B * 32, (C - 1) * 32, True
+                    End If
                     If .HPBar = True Or Character.Access > 0 Then
                         Draw .XO + 3, .YO - 20, 26, 2, DDSHPBar, 0, 0, False
                         E = (.Life / Monster(.Monster).MaxLife)
@@ -663,153 +695,17 @@ Sub RedrawMapTile(X As Byte, Y As Byte)
         Call FGTileBuffer.BltColorFill(TileSource, RGB(0, 0, 0))
         Call FGTile2Buffer.BltColorFill(TileSource, RGB(0, 0, 0))
         If MapEdit = False Then
-            With Map.Tile(X, Y)
-                If .Ground > 0 Then
-                    TileSource.Left = ((.Ground - 1) Mod 7) * 32
-                    TileSource.Top = Int((.Ground - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If .Ground2 > 0 Then
-                    TileSource.Left = ((.Ground2 - 1) Mod 7) * 32
-                    TileSource.Top = Int((.Ground2 - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If .BGTile1 > 0 Then
-                    TileSource.Left = ((.BGTile1 - 1) Mod 7) * 32
-                    TileSource.Top = Int((.BGTile1 - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If .BGTile2 > 0 Then
-                    TileSource.Left = ((.BGTile2 - 1) Mod 7) * 32
-                    TileSource.Top = Int((.BGTile2 - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                ElseIf .BGTile1 > 0 Then
-                    TileSource.Left = ((.BGTile1 - 1) Mod 7) * 32
-                    TileSource.Top = Int((.BGTile1 - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If .FGTile > 0 Then
-                    TileSource.Left = ((.FGTile - 1) Mod 7) * 32
-                    TileSource.Top = Int((.FGTile - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call FGTileBuffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If .FGTile2 > 0 Then
-                    TileSource.Left = ((.FGTile2 - 1) Mod 7) * 32
-                    TileSource.Top = Int((.FGTile2 - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call FGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                ElseIf .FGTile > 0 Then
-                    TileSource.Left = ((.FGTile - 1) Mod 7) * 32
-                    TileSource.Top = Int((.FGTile - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call FGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-            End With
+           DrawMapTile Map, X, Y
         Else
-            With EditMap.Tile(X, Y)
-                If .Ground > 0 Then
-                    TileSource.Left = ((.Ground - 1) Mod 7) * 32
-                    TileSource.Top = Int((.Ground - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If .Ground2 > 0 Then
-                    TileSource.Left = ((.Ground2 - 1) Mod 7) * 32
-                    TileSource.Top = Int((.Ground2 - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If .BGTile1 > 0 Then
-                    TileSource.Left = ((.BGTile1 - 1) Mod 7) * 32
-                    TileSource.Top = Int((.BGTile1 - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If .BGTile2 > 0 Then
-                    TileSource.Left = ((.BGTile2 - 1) Mod 7) * 32
-                    TileSource.Top = Int((.BGTile2 - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                ElseIf .BGTile1 > 0 Then
-                    TileSource.Left = ((.BGTile1 - 1) Mod 7) * 32
-                    TileSource.Top = Int((.BGTile1 - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If .FGTile > 0 Then
-                    TileSource.Left = ((.FGTile - 1) Mod 7) * 32
-                    TileSource.Top = Int((.FGTile - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call FGTileBuffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If .FGTile2 > 0 Then
-                    TileSource.Left = ((.FGTile2 - 1) Mod 7) * 32
-                    TileSource.Top = Int((.FGTile2 - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call FGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                ElseIf .FGTile > 0 Then
-                    TileSource.Left = ((.FGTile - 1) Mod 7) * 32
-                    TileSource.Top = Int((.FGTile - 1) / 7) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call FGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                End If
-                If EditMode >= 6 Then
-                    If .Att2 > 0 Then
-                        TileSource.Left = ((.Att2 - 1) Mod 7) * 32 + 8
-                        TileSource.Top = Int((.Att2 - 1) / 7) * 32 + 8
-                        TileSource.Right = TileSource.Left + 16
-                        TileSource.Bottom = TileSource.Top + 16
-                        Call FGTileBuffer.BltFast(X * 32 + 12, Y * 32 + 12, DDSAtts, TileSource, DDBLTFAST_SRCCOLORKEY)
-                        Call FGTile2Buffer.BltFast(X * 32 + 12, Y * 32 + 12, DDSAtts, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .Att > 0 Then
-                        TileSource.Left = ((.Att - 1) Mod 7) * 32 + 8
-                        TileSource.Top = Int((.Att - 1) / 7) * 32 + 8
-                        TileSource.Right = TileSource.Left + 16
-                        TileSource.Bottom = TileSource.Top + 16
-                        Call FGTileBuffer.BltFast(X * 32 + 4, Y * 32 + 4, DDSAtts, TileSource, DDBLTFAST_SRCCOLORKEY)
-                        Call FGTile2Buffer.BltFast(X * 32 + 4, Y * 32 + 4, DDSAtts, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                End If
-            End With
+           DrawMapTile EditMap, X, Y
         End If
         For A = 0 To MaxMapObjects
             With Map.Object(A)
                 If .Object > 0 And .X = X And .Y = Y Then
                     B = Object(.Object).Picture
                     If B > 0 Then
-                        TileSource.Left = 0
-                        TileSource.Top = (B - 1) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile1Buffer.BltFast(.X * 32, .Y * 32, DDSObjects, TileSource, DDBLTFAST_SRCCOLORKEY)
-                        Call BGTile2Buffer.BltFast(.X * 32, .Y * 32, DDSObjects, TileSource, DDBLTFAST_SRCCOLORKEY)
+                        DrawObject BGTile1Buffer, B, .X, .Y
+                        DrawObject BGTile2Buffer, B, .X, .Y
                     End If
                 End If
             End With
@@ -857,10 +753,7 @@ Sub Draw3dText(DC As Long, TargetRect As RECT, St As String, lngColor As Long, H
 End Sub
 
 Sub DrawMap()
-    Dim A As Long, B As Long, X As Long, Y As Long
-
-    Dim TileSource As RECT
-
+    Dim A As Long, B As Long, X As Byte, Y As Byte
     Call BGTile1Buffer.BltColorFill(FullMapRect, RGB(0, 0, 0))
     Call BGTile2Buffer.BltColorFill(FullMapRect, RGB(0, 0, 0))
     Call FGTileBuffer.BltColorFill(FullMapRect, RGB(0, 0, 0))
@@ -883,151 +776,13 @@ Sub DrawMap()
     If MapEdit = False Then
         For X = 0 To 11
             For Y = 0 To 11
-                With Map.Tile(X, Y)
-                    If .Ground > 0 Then
-                        TileSource.Left = ((.Ground - 1) Mod 7) * 32
-                        TileSource.Top = Int((.Ground - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_WAIT)
-                        Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_WAIT)
-                    End If
-                    If .Ground2 > 0 Then
-                        TileSource.Left = ((.Ground2 - 1) Mod 7) * 32
-                        TileSource.Top = Int((.Ground2 - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                        Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .BGTile1 > 0 Then
-                        TileSource.Left = ((.BGTile1 - 1) Mod 7) * 32
-                        TileSource.Top = Int((.BGTile1 - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .BGTile2 > 0 Then
-                        TileSource.Left = ((.BGTile2 - 1) Mod 7) * 32
-                        TileSource.Top = Int((.BGTile2 - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    ElseIf .BGTile1 > 0 Then
-                        TileSource.Left = ((.BGTile1 - 1) Mod 7) * 32
-                        TileSource.Top = Int((.BGTile1 - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .FGTile > 0 Then
-                        TileSource.Left = ((.FGTile - 1) Mod 7) * 32
-                        TileSource.Top = Int((.FGTile - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call FGTileBuffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .FGTile2 > 0 Then
-                        TileSource.Left = ((.FGTile2 - 1) Mod 7) * 32
-                        TileSource.Top = Int((.FGTile2 - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call FGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    ElseIf .FGTile > 0 Then
-                        TileSource.Left = ((.FGTile - 1) Mod 7) * 32
-                        TileSource.Top = Int((.FGTile - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call FGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .Att = 19 Then
-                        If options.DisableLighting = False Then AddMapLight X * 32 + 16, Y * 32 + 16, .AttData(0), .AttData(1)
-                    End If
-                End With
+                DrawMapTile Map, X, Y
             Next Y
         Next X
     Else
         For X = 0 To 11
             For Y = 0 To 11
-                With EditMap.Tile(X, Y)
-                    If .Ground > 0 Then
-                        TileSource.Left = ((.Ground - 1) Mod 7) * 32
-                        TileSource.Top = Int((.Ground - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                        Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .Ground2 > 0 Then
-                        TileSource.Left = ((.Ground2 - 1) Mod 7) * 32
-                        TileSource.Top = Int((.Ground2 - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                        Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .BGTile1 > 0 Then
-                        TileSource.Left = ((.BGTile1 - 1) Mod 7) * 32
-                        TileSource.Top = Int((.BGTile1 - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile1Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .BGTile2 > 0 Then
-                        TileSource.Left = ((.BGTile2 - 1) Mod 7) * 32
-                        TileSource.Top = Int((.BGTile2 - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    ElseIf .BGTile1 > 0 Then
-                        TileSource.Left = ((.BGTile1 - 1) Mod 7) * 32
-                        TileSource.Top = Int((.BGTile1 - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call BGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .FGTile > 0 Then
-                        TileSource.Left = ((.FGTile - 1) Mod 7) * 32
-                        TileSource.Top = Int((.FGTile - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call FGTileBuffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If .FGTile2 > 0 Then
-                        TileSource.Left = ((.FGTile2 - 1) Mod 7) * 32
-                        TileSource.Top = Int((.FGTile2 - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call FGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    ElseIf .FGTile > 0 Then
-                        TileSource.Left = ((.FGTile - 1) Mod 7) * 32
-                        TileSource.Top = Int((.FGTile - 1) / 7) * 32
-                        TileSource.Right = TileSource.Left + 32
-                        TileSource.Bottom = TileSource.Top + 32
-                        Call FGTile2Buffer.BltFast(X * 32, Y * 32, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    End If
-                    If EditMode >= 6 Then
-                        If .Att2 > 0 Then
-                            TileSource.Left = ((.Att2 - 1) Mod 7) * 32 + 8
-                            TileSource.Top = Int((.Att2 - 1) / 7) * 32 + 8
-                            TileSource.Right = TileSource.Left + 16
-                            TileSource.Bottom = TileSource.Top + 16
-                            Call FGTileBuffer.BltFast(X * 32 + 12, Y * 32 + 12, DDSAtts, TileSource, DDBLTFAST_SRCCOLORKEY)
-                            Call FGTile2Buffer.BltFast(X * 32 + 12, Y * 32 + 12, DDSAtts, TileSource, DDBLTFAST_SRCCOLORKEY)
-                        End If
-                        If .Att > 0 Then
-                            TileSource.Left = ((.Att - 1) Mod 7) * 32 + 8
-                            TileSource.Top = Int((.Att - 1) / 7) * 32 + 8
-                            TileSource.Right = TileSource.Left + 16
-                            TileSource.Bottom = TileSource.Top + 16
-                            Call FGTileBuffer.BltFast(X * 32 + 4, Y * 32 + 4, DDSAtts, TileSource, DDBLTFAST_SRCCOLORKEY)
-                            Call FGTile2Buffer.BltFast(X * 32 + 4, Y * 32 + 4, DDSAtts, TileSource, DDBLTFAST_SRCCOLORKEY)
-                        End If
-                    End If
-                    If .Att = 19 Then
-                        If options.DisableLighting = False Then AddMapLight X * 32 + 16, Y * 32 + 16, .AttData(0), .AttData(1)
-                    End If
-                End With
+                DrawMapTile EditMap, X, Y
             Next Y
         Next X
     End If
@@ -1037,12 +792,8 @@ Sub DrawMap()
             If .Object > 0 Then
                 B = Object(.Object).Picture
                 If B > 0 Then
-                    TileSource.Left = 0
-                    TileSource.Top = (B - 1) * 32
-                    TileSource.Right = TileSource.Left + 32
-                    TileSource.Bottom = TileSource.Top + 32
-                    Call BGTile1Buffer.BltFast(.X * 32, .Y * 32, DDSObjects, TileSource, DDBLTFAST_SRCCOLORKEY)
-                    Call BGTile2Buffer.BltFast(.X * 32, .Y * 32, DDSObjects, TileSource, DDBLTFAST_SRCCOLORKEY)
+                    DrawObject BGTile1Buffer, B, .X, .Y
+                    DrawObject BGTile2Buffer, B, .X, .Y
                 End If
             End If
         End With
@@ -1065,5 +816,123 @@ Sub DrawMap()
 
         CreateLightMap Lighting(0), Darkness, MapDataLoadingArray(0), OutdoorLight
     End If
+End Sub
+
+Sub DrawMapTile(Map As MapData, X As Byte, Y As Byte)
+    With Map.Tile(X, Y)
+        If .Ground > 0 Then
+            DrawTile BGTile1Buffer, .Ground, X, Y
+            DrawTile BGTile2Buffer, .Ground, X, Y
+        End If
+        If .Ground2 > 0 Then
+            DrawTile BGTile1Buffer, .Ground2, X, Y
+            DrawTile BGTile2Buffer, .Ground2, X, Y
+        End If
+        If .BGTile1 > 0 Then
+            DrawTile BGTile1Buffer, .BGTile1, X, Y
+        End If
+        If .BGTile2 > 0 Then
+            DrawTile BGTile2Buffer, .BGTile2, X, Y
+        ElseIf .BGTile1 > 0 Then
+            DrawTile BGTile2Buffer, .BGTile1, X, Y
+        End If
+        If .FGTile > 0 Then
+            If .Att = 23 Then
+                If (ExamineBit(.AttData(0), 4) = False) Then 'bg checked tiles are visible
+                    If (ExamineBit(.AttData(0), 0) = True) Then DrawTile BGTile1Buffer, .FGTile, X, Y, 16, 0, 0, 16 'upper right
+                    If (ExamineBit(.AttData(0), 1) = True) Then DrawTile BGTile1Buffer, .FGTile, X, Y, 0, 16, 0, 16 'upper left
+                    If (ExamineBit(.AttData(0), 2) = True) Then DrawTile BGTile1Buffer, .FGTile, X, Y, 0, 16, 16, 0 'lower left
+                    If (ExamineBit(.AttData(0), 3) = True) Then DrawTile BGTile1Buffer, .FGTile, X, Y, 16, 0, 16, 0 'lower right
+                End If
+                
+                If (ExamineBit(.AttData(0), 5) = False) Then 'unchecked checked tiles are visible
+                    If (ExamineBit(.AttData(0), 0) = False) Then DrawTile FGTileBuffer, .FGTile, X, Y, 16, 0, 0, 16 'upper right
+                    If (ExamineBit(.AttData(0), 1) = False) Then DrawTile FGTileBuffer, .FGTile, X, Y, 0, 16, 0, 16 'upper left
+                    If (ExamineBit(.AttData(0), 2) = False) Then DrawTile FGTileBuffer, .FGTile, X, Y, 0, 16, 16, 0 'lower left
+                    If (ExamineBit(.AttData(0), 3) = False) Then DrawTile FGTileBuffer, .FGTile, X, Y, 16, 0, 16, 0 'lower right
+                End If
+            Else
+                DrawTile FGTileBuffer, .FGTile, X, Y
+            End If
+        End If
+        
+        If .FGTile2 > 0 Then
+            If .Att = 23 Then
+                If (ExamineBit(.AttData(0), 4) = False) Then 'bg checked tiles are visible
+                    If (ExamineBit(.AttData(0), 0) = True) Then DrawTile BGTile2Buffer, .FGTile2, X, Y, 16, 0, 0, 16 'upper right
+                    If (ExamineBit(.AttData(0), 1) = True) Then DrawTile BGTile2Buffer, .FGTile2, X, Y, 0, 16, 0, 16 'upper left
+                    If (ExamineBit(.AttData(0), 2) = True) Then DrawTile BGTile2Buffer, .FGTile2, X, Y, 0, 16, 16, 0 'lower left
+                    If (ExamineBit(.AttData(0), 3) = True) Then DrawTile BGTile2Buffer, .FGTile2, X, Y, 16, 0, 16, 0 'lower right
+                End If
+                
+                If (ExamineBit(.AttData(0), 5) = False) Then 'unchecked checked tiles are visible
+                    If (ExamineBit(.AttData(0), 0) = False) Then DrawTile FGTile2Buffer, .FGTile2, X, Y, 16, 0, 0, 16 'upper right
+                    If (ExamineBit(.AttData(0), 1) = False) Then DrawTile FGTile2Buffer, .FGTile2, X, Y, 0, 16, 0, 16 'upper left
+                    If (ExamineBit(.AttData(0), 2) = False) Then DrawTile FGTile2Buffer, .FGTile2, X, Y, 0, 16, 16, 0 'lower left
+                    If (ExamineBit(.AttData(0), 3) = False) Then DrawTile FGTile2Buffer, .FGTile2, X, Y, 16, 0, 16, 0 'lower right
+                End If
+            Else
+                DrawTile FGTile2Buffer, .FGTile2, X, Y
+            End If
+        ElseIf .FGTile > 0 Then
+            If .Att = 23 Then
+                If (ExamineBit(.AttData(0), 4) = False) Then 'bg checked tiles are visible
+                    If (ExamineBit(.AttData(0), 0) = True) Then DrawTile BGTile2Buffer, .FGTile, X, Y, 16, 0, 0, 16 'upper right
+                    If (ExamineBit(.AttData(0), 1) = True) Then DrawTile BGTile2Buffer, .FGTile, X, Y, 0, 16, 0, 16 'upper left
+                    If (ExamineBit(.AttData(0), 2) = True) Then DrawTile BGTile2Buffer, .FGTile, X, Y, 0, 16, 16, 0 'lower left
+                    If (ExamineBit(.AttData(0), 3) = True) Then DrawTile BGTile2Buffer, .FGTile, X, Y, 16, 0, 16, 0 'lower right
+                End If
+                
+                If (ExamineBit(.AttData(0), 5) = False) Then 'unchecked checked tiles are visible
+                    If (ExamineBit(.AttData(0), 0) = False) Then DrawTile FGTile2Buffer, .FGTile, X, Y, 16, 0, 0, 16 'upper right
+                    If (ExamineBit(.AttData(0), 1) = False) Then DrawTile FGTile2Buffer, .FGTile, X, Y, 0, 16, 0, 16 'upper left
+                    If (ExamineBit(.AttData(0), 2) = False) Then DrawTile FGTile2Buffer, .FGTile, X, Y, 0, 16, 16, 0 'lower left
+                    If (ExamineBit(.AttData(0), 3) = False) Then DrawTile FGTile2Buffer, .FGTile, X, Y, 16, 0, 16, 0 'lower right
+                End If
+            Else
+                DrawTile FGTile2Buffer, .FGTile, X, Y
+            End If
+        End If
+        
+        If EditMode >= 6 And MapEdit Then
+            If .Att2 > 0 Then
+                DrawAtt FGTileBuffer, .Att2, X, Y, 12, 12
+                DrawAtt FGTile2Buffer, .Att2, X, Y, 12, 12
+            End If
+            If .Att > 0 Then
+                DrawAtt FGTileBuffer, .Att, X, Y, 4, 4
+                DrawAtt FGTile2Buffer, .Att, X, Y, 4, 4
+            End If
+        End If
+        If .Att = 19 Then
+            If options.DisableLighting = False Then AddMapLight X * 32 + 16, Y * 32 + 16, .AttData(0), .AttData(1)
+        End If
+    End With
+End Sub
+
+Sub DrawTile(ByRef Surface As DirectDrawSurface4, tileIndex As Integer, X As Byte, Y As Byte, _
+    Optional trimLeft As Long = 0, Optional trimRight As Long = 0, Optional trimTop As Long = 0, Optional trimBottom As Long = 0)
+    
+    TileSource.Left = (((tileIndex - 1) Mod 7) * 32) + trimLeft
+    TileSource.Top = (Int((tileIndex - 1) / 7) * 32) + trimTop
+    TileSource.Right = (((tileIndex - 1) Mod 7) * 32) + 32 - trimRight
+    TileSource.Bottom = (Int((tileIndex - 1) / 7) * 32) + 32 - trimBottom
+    Call Surface.BltFast(X * 32 + trimLeft, Y * 32 + trimTop, DDSTiles, TileSource, DDBLTFAST_SRCCOLORKEY)
+End Sub
+
+Sub DrawObject(ByRef Surface As DirectDrawSurface4, objectIndex As Long, X As Byte, Y As Byte)
+    TileSource.Left = 0
+    TileSource.Top = (objectIndex - 1) * 32
+    TileSource.Right = TileSource.Left + 32
+    TileSource.Bottom = TileSource.Top + 32
+    Call Surface.BltFast(X * 32, Y * 32, DDSObjects, TileSource, DDBLTFAST_SRCCOLORKEY)
+End Sub
+
+Sub DrawAtt(ByRef Surface As DirectDrawSurface4, attIndex As Byte, X As Byte, Y As Byte, XO As Long, YO As Long)
+    TileSource.Left = ((attIndex - 1) Mod 7) * 32 + 8
+    TileSource.Top = Int((attIndex - 1) / 7) * 32 + 8
+    TileSource.Right = TileSource.Left + 16
+    TileSource.Bottom = TileSource.Top + 16
+    Call Surface.BltFast(X * 32 + XO, Y * 32 + YO, DDSAtts, TileSource, DDBLTFAST_SRCCOLORKEY)
 End Sub
 
